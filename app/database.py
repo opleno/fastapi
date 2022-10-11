@@ -2,7 +2,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-SQLALCHEMY_DATABASE_URL = "postgresql://mtxncvrblsauxo:password@ec2-99-81-137-11.eu-west-1.compute.amazonaws.com/d5onrb4mv9gm9a"
+from config import DB_USERNAME, DB_PASSWORD, DB_HOST_URI
+
+
+SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST_URI}"
 # SQLALCHEMY_DATABASE_URL = "postgresql://user:password@postgresserver/db"
 
 engine = create_engine(
