@@ -1,27 +1,19 @@
-from typing import Optional
+from typing import Optional, List
 from fastapi import FastAPI, Response, status, HTTPException, Depends
 from fastapi.params import Body
-from pydantic import BaseModel
 from random import randrange
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
 from sqlalchemy.orm import Session
 
-from . import models
+from . import models, schemas
 from .database import engine, get_db
 
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-
-
-# Pydentic models (schemas)
-class Post(BaseModel):
-    title: str
-    content: str
-    published: bool = True
 
 
 # Routes
@@ -32,36 +24,28 @@ def root():
     return {"message": "Hello World"}
 
 
-@app.get("/sqlalchemy")
-def sqlalchemy_test(db: Session = Depends(get_db)):
-
-    posts = db.query(models.Post).all()
-
-    return {"data": posts}
-
-
 # POSTS CRUD
 
-@app.get("/posts")
+@app.get("/posts", response_model=List[schemas.PostResponse])
 def get_posts(db: Session = Depends(get_db)):
 
     posts = db.query(models.Post).all()
 
-    return {"data": posts}
+    return posts
 
 
-@app.get("/posts/{id}")
+@app.get("/posts/{id}", response_model=schemas.PostResponse)
 def get_post(id: int, db: Session = Depends(get_db)):
 
     post = db.query(models.Post).filter(models.Post.id == id).first()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with id: {id} was not found")
-    return {"post_detail": post}
+    return post
 
 
-@app.post("/posts", status_code=status.HTTP_201_CREATED)
-def create_posts(post: Post, db: Session = Depends(get_db)):
+@app.post("/posts", status_code=status.HTTP_201_CREATED, response_model=schemas.PostResponse)
+def create_posts(post: schemas.PostCreate, db: Session = Depends(get_db)):
 
     # using ** takes out the content of the Post dictionary and transaforms
     # it into what we need:
@@ -71,11 +55,11 @@ def create_posts(post: Post, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_post)
 
-    return {"data": new_post}
+    return new_post
 
 
-@app.put("/posts/{id}")
-def update_post(id: int, updated_post: Post, db: Session = Depends(get_db)):
+@app.put("/posts/{id}", response_model=schemas.PostResponse)
+def update_post(id: int, updated_post: schemas.PostBase, db: Session = Depends(get_db)):
 
     # filter solo construye la query en SQL, por eso se puede reusar en el return
     post_query = db.query(models.Post).filter(models.Post.id == id)
@@ -86,7 +70,7 @@ def update_post(id: int, updated_post: Post, db: Session = Depends(get_db)):
     post_query.update(updated_post.dict(), synchronize_session=False)
     db.commit()
 
-    return {"data": post_query.first()}
+    return post_query.first()
 
 
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT, description="post succesfully deleted")
