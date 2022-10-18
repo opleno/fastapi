@@ -5,6 +5,24 @@ from datetime import datetime
 
 # Pydentic models (schemas)
 
+# Users
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class UserResponse(BaseModel):
+    id: int
+    email: EmailStr
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+# Posts
+
 class PostBase(BaseModel):
     title: str
     content: str
@@ -19,22 +37,7 @@ class PostResponse(PostBase):
     id: int
     created_at: datetime
     owner_id: int
-
-    class Config:
-        orm_mode = True
-
-
-# Users
-
-class UserCreate(BaseModel):
-    email: EmailStr
-    password: str
-
-
-class UserResponse(BaseModel):
-    id: int
-    email: EmailStr
-    created_at: datetime
+    owner: UserResponse
 
     class Config:
         orm_mode = True
