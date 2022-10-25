@@ -6,7 +6,8 @@ Web Framework: Fast API
 
 DB: Postgres
 
-ORM: SQL Alquemy
+ORM: SQL Alquemy |
+DB migration tool: Alembic
 
 Tests: Postman, ### ADD
 
