@@ -25,8 +25,8 @@ class UserResponse(BaseModel):
 # Posts
 
 class PostBase(BaseModel):
-    title: str
-    content: str
+    title: str = ""
+    content: str = ""
     published: bool = True
 
 
@@ -44,7 +44,16 @@ class PostResponse(PostBase):
         orm_mode = True
 
 
+class PostOut(PostBase):
+    votes: int
+    Post: PostResponse
+
+    class Config:
+        orm_mode = True
+
+
 # Auth
+
 
 class UserLogin(BaseModel):
     email: EmailStr

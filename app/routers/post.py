@@ -2,6 +2,7 @@
 from fastapi import Response, status, HTTPException, Depends, APIRouter
 from typing import List, Optional
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from .. import models, schemas, oauth2
 from ..database import get_db
@@ -13,7 +14,11 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=List[schemas.PostResponse])
+@router.get("/", response_model=List[schemas.PostOut])
+# TODO: pydantic is trying to validate the response as if the fields of the parent class
+# were present at the same level as "Post" and "votes"
+# https://www.youtube.com/watch?v=0sOvCWFmrtA&t=37603s
+# TEMPORARY FIX: adding default value to PostBase schema
 def get_posts(db: Session = Depends(get_db),
               # verifica si esta autenticado:
               current_user=Depends(oauth2.get_current_user),
@@ -23,18 +28,27 @@ def get_posts(db: Session = Depends(get_db),
               search: Optional[str] = ""
               ):
 
-    posts = db.query(models.Post).filter(
+    # JOIN
+    posts_query = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(
+        models.Vote,
+        models.Vote.post_id == models.Post.id,
+        isouter=True).group_by(models.Post.id)
+    # query params
+    posts = posts_query.filter(
         models.Post.title.contains(search)).limit(limit).offset(skip).all()
 
-    return posts
+    return posts  # schemas.PostOut.from_orm(posts)
 
 
-@router.get("/{id}", response_model=schemas.PostResponse)
+@router.get("/{id}", response_model=schemas.PostOut)
 def get_post(id: int,
              db: Session = Depends(get_db),
              current_user=Depends(oauth2.get_current_user)):
 
-    post = db.query(models.Post).filter(models.Post.id == id).first()
+    post = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(
+        models.Vote,
+        models.Vote.post_id == models.Post.id,
+        isouter=True).group_by(models.Post.id).filter(models.Post.id == id).first()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with id: {id} was not found")
