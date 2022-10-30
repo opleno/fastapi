@@ -1,0 +1,79 @@
+
+Uvicorn
+    Pros: its Workers use ASGI (Asynchronous Sever Gateway Interface)
+    Cons: as a Process Manager, it is not the best option
+
+Gunicorn
+    Pros: good Process Manager, compatibible with Uvicorn Workers
+    Cons: uses WSGI
+
+DevOps clarification
+    If Kubernetes is to be used, load balancing etc. is usually done at a cluster 
+    level, so it is better to use only Uvicorn
+
+When we want our Linux service to reload after a server error, it needs to be enabled
+with the following command:
+    sudo systemctl enable fastapi-course.service
+
+If needed: https://lowendbox.com/blog/how-to-replace-apache-with-nginx-on-ubuntu-18-04/
+
+Linux VM deployment:
+    -> create VM in cloud provider (e.g. DigitalOcean)
+    ssh root@[IP]
+    sudo apt update && apt upgrade -y
+    apt install python3-pip
+    sudo apt install postgresql postgresql-contrib -y
+    psql -U postgres -d postgres (will fail as we are logged as root)
+    su - postgres
+    psql -U postgres -d postgres (will prompt a postgres console)
+    \password postgres
+    \q
+    exit
+    cd /etc/postgresql/14/main/
+    nano postgresql.conf
+        -> add listen_addresses = '*' to "connections and authentication section"
+    nano pg_hba.conf
+        -> change "peer" method to the other one used in the table
+        -> change 127.0.0.1... to 0.0.0.0/0 for IPv4 and ::/0 for IPv6 if we want to let any IP to access the database (forbidden in production)
+    systemctl restart postgresql
+    ssh root@IP
+    adduser sql-admin
+    su - sql-admin
+    mkdir fastapi-course
+    cd fastapi-course/
+    virtualenv venv
+    mkdir src
+    cd src
+    git clone https://github.com/opleno/fastapi.git .
+    cd ..
+    source venv/bin/activate
+    cd src
+    pip install -r requirements.txt
+        -> if a library is missing, install it:
+            deactivate
+            sudo apt install libpq-dev
+            source venv/bin/activate
+    cd
+    nano .env
+        -> add all env variables
+    nano .profile
+        -> add at the bottom:
+        set -o allexport; source ~/.env; set +o allexport
+    cd fastapi-course/
+    source venv/bin/activate
+    cd src
+    alembic upgrade head
+    2 options:
+        uvicorn --host 0.0.0.0 app.main:app
+        gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:8000
+        -> if any errors with the last one:
+            pip install httptools
+            pip install uvloop
+    -> as we want our server to run automatically on every boot, lets create a service
+    cd /etc/systemd/system/
+    sudo nano fastapi-course.service
+    -> adapt all paths to the correct ones. if incorrect and a rewrite of this file is needed: systemctl daemon-reload
+    systemctl start fastapi-course.service
+    sudo systemctl enable fastapi-course.service (to ensure it reloads after a crash)
+    systemctl status fastapi-course.service
+
