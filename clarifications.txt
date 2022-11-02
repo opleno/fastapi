@@ -112,3 +112,9 @@ Set up firewall:
     sudo ufw status
     -> if needed in the future, sudo ufw delete allow http
 
+-------------------------------------------------------------------------------------
+
+Update app with new code manually (not important, this can be done with a CD/CI pipeline):
+    git pull    (in the app folder inside the ununtu VM)
+    pip install -r requirements.txt     (if needed)
+    sudo systemctl restart fastapi-course.service
