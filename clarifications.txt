@@ -38,6 +38,7 @@ Linux VM deployment:
     systemctl restart postgresql
     ssh root@IP
     adduser sql-admin
+    usermod -aG sudo sql-admin  (add it to the sudoers group)
     su - sql-admin
     mkdir fastapi-course
     cd fastapi-course/
@@ -76,4 +77,38 @@ Linux VM deployment:
     systemctl start fastapi-course.service
     sudo systemctl enable fastapi-course.service (to ensure it reloads after a crash)
     systemctl status fastapi-course.service
+
+NGINX:
+    -> in the ubuntu VM
+    sudo apt install nginx -y
+    systemctl start nginx
+    nano /etc/nginx/sites-available/
+        -> add locations
+    systemctl restart nginx
+    
+connect app to domain:
+    -> in your domain provider (Hostinger), change the nameservers to ns1.dns-digitalocean.com
+    -> in DigitalOcean -> Manage DNS -> add domain 
+    -> create A record (hostname = @, will redirect to ubuntu-fastapi-course). It takes some time for the network to propagate these changes.
+
+add https to nginx:
+    ssh sql-admin@188.166.166.197
+    -> following instructions from https://certbot.eff.org/instructions?ws=nginx&os=ubuntufocal
+    sudo snap install core; sudo snap refresh core
+    sudo snap install --classic certbot
+    sudo certbot --nginx
+
+Ensure nginx restarts automatically on a reboot:
+    systemctl status nginx
+    -> check that it says "enabled"
+
+Set up firewall:
+    sudo ufw status     (ufw is the ubuntu's built in firewall)
+    sudo ufw allow http
+    sudo ufw allow https
+    sudo ufw allow ssh
+    sudo ufw allow 5432     (WARNING: it would allow access from every location to the DB, not for PROD)
+    sudo ufw enable
+    sudo ufw status
+    -> if needed in the future, sudo ufw delete allow http
 
