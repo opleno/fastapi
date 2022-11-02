@@ -118,3 +118,6 @@ Update app with new code manually (not important, this can be done with a CD/CI 
     git pull    (in the app folder inside the ununtu VM)
     pip install -r requirements.txt     (if needed)
     sudo systemctl restart fastapi-course.service
+
+Create docker image:
+    desde alo@alo:~/courses/backend/fastapi$ -> docker build -t fastapi-course .
