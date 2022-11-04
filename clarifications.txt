@@ -120,4 +120,9 @@ Update app with new code manually (not important, this can be done with a CD/CI 
     sudo systemctl restart fastapi-course.service
 
 Create docker image:
-    desde alo@alo:~/courses/backend/fastapi$ -> docker build -t fastapi-course .
+    from alo@alo:~/courses/backend/fastapi$ -> docker build -t fastapi-course .
+    -> create docker-compose.yml
+    docker compose up -d
+    docker compose down
+    -> change whatever in the .yml file
+    docker compose up -d
