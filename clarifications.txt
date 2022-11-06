@@ -126,3 +126,10 @@ Create docker image:
     docker compose down
     -> change whatever in the .yml file
     docker compose up -d
+    docker exec -it fastapi-api-1 bash   (when access to the container via terminal is needed)
+
+Upload docker image
+    docker login
+    docker image tag fastapi-api alcupa/fastapi-course
+    docker push alcupa/fastapi-course
+
