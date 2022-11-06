@@ -133,3 +133,6 @@ Upload docker image
     docker image tag fastapi-api alcupa/fastapi-course
     docker push alcupa/fastapi-course
 
+Shutting up/down docker compose when the files are not named docker-compose.yml:
+    docker compose -f docker-compose-dev.yml up -d
+    docker compose -f docker-compose-dev.yml down
