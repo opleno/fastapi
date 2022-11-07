@@ -126,7 +126,10 @@ Create docker image:
     docker compose down
     -> change whatever in the .yml file
     docker compose up -d
+
     docker exec -it fastapi-api-1 bash   (when access to the container via terminal is needed)
+    -> docker does not expose postgres in localhost:5432
+    -> instead, you can "docker inspect fastapi-postgres-1" and get the IPAddress in which it is exposed
 
 Upload docker image
     docker login
@@ -136,3 +139,15 @@ Upload docker image
 Shutting up/down docker compose when the files are not named docker-compose.yml:
     docker compose -f docker-compose-dev.yml up -d
     docker compose -f docker-compose-dev.yml down
+
+-------------------------------------------------------------------------------------
+
+Testing with pytest
+    pytest -v
+    (pytest -v --disable-warnings)
+    (pytest -v -s tests/test_users.py) -> to show prints
+    (pytest -v tests/test_users.py) -> to run only tests in that file
+    (pytest -v -x) -> to make pytest stop after the first test failure
+
+    -> fixtures can be used to avoid repeating code, and the return of one fixture can be used in a different one
+
