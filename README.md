@@ -9,6 +9,6 @@ DB: Postgres
 ORM: SQL Alquemy |
 DB migration tool: Alembic
 
-Tests: Postman, ### ADD
+Tests: Postman, Pytest
 
 Auth: OAuth2
