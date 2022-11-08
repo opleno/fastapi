@@ -150,4 +150,3 @@ Testing with pytest
     (pytest -v -x) -> to make pytest stop after the first test failure
 
     -> fixtures can be used to avoid repeating code, and the return of one fixture can be used in a different one
-
