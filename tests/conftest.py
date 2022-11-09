@@ -11,6 +11,7 @@ from app.main import app
 from app.config import settings
 from app.database import get_db, Base
 from app.oauth2 import create_access_token
+from app import models
 
 # SQLALCHEMY_DATABASE_URL = f"postgresql://postgres:1234@localhost:5432/fastapi_test"
 # _test
@@ -55,7 +56,6 @@ def test_user(client):
     res = client.post("/users/", json=user_data)
 
     assert res.status_code == 201
-    print(res.json())
     new_user = res.json()
     new_user['password'] = user_data["password"]
     return new_user
@@ -74,3 +74,49 @@ def authenticated_client(client, token):
     }
     return client
 
+
+@pytest.fixture
+def test_post_posts(test_user, session):
+    posts_data = [
+        {
+            "title": "first title",
+            "content": "first content",
+            "owner_id": test_user['id']
+        }, {
+            "title": "2nd title",
+            "content": "2nd content",
+            "owner_id": test_user['id']
+        },
+        {
+            "title": "3rd title",
+            "content": "3rd content",
+            "owner_id": test_user['id']
+        }
+        # , {
+        #     "title": "3rd title",
+        #     "content": "3rd content",
+        #     "owner_id": test_user2['id']
+        # }
+    ]
+
+    def cast_post(post):
+        return models.Post(**post)
+
+    posts_map = map(cast_post, posts_data)
+    posts = list(posts_map)
+
+    session.add_all(posts)
+    # session.add_all([models.Post(title="first title",
+    #                              content="first content",
+    #                              owner_id=test_user['id']),
+    #                 models.Post(title="2nd title",
+    #                             content="2nd content",
+    #                             owner_id=test_user['id']),
+    #                 models.Post(title="3d title",
+    #                             content="3d content",
+    #                             owner_id=test_user['id']),
+    #                  ])
+    session.commit()
+    posts_in_db = session.query(models.Post).all()
+    
+    return posts_in_db
