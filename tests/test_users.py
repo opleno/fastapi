@@ -3,20 +3,7 @@ from jose import jwt
 
 from app import schemas
 # session fixture is also needed, as client makes use of it
-from .database import client, session
 from app.config import settings
-
-
-@pytest.fixture
-def test_user(client):
-    user_data = {"email": "hello@outlook.com", "password": "1234"}
-    res = client.post("/users/", json=user_data)
-
-    assert res.status_code == 201
-    print(res.json())
-    new_user = res.json()
-    new_user['password'] = user_data["password"]
-    return new_user
 
 
 def test_root(client):
@@ -45,3 +32,17 @@ def test_login_user(client, test_user):
     assert id == test_user['id']
     assert login_res.token_type == "bearer"
     assert res.status_code == 200
+
+@pytest.mark.parametrize("username, password, status_code", [
+    ('wrongemail@gmail.com', '1234', 403),
+    ('hello@outlook.com', 'wrongpassword', 403),
+    ('wrongemail@gmail.com', 'wrongpassword', 403),
+    (None, '1234', 422),
+    ('hello@outlook.com', None, 422)
+])
+def test_login_incorrect_user(client, username, password, status_code):
+    res = client.post(
+        "/login", data={"username": username, "password": password})
+
+    assert res.status_code == status_code
+    # assert res.json().get('detail') == 'Invalid credentials'
