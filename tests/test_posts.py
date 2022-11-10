@@ -92,7 +92,7 @@ def test_delete_nonexistent_post(authenticated_client, preloaded_posts):
     assert res.status_code == 404
 
 
-def delete_other_users_post(authenticated_client, preloaded_posts):
+def test_delete_other_users_post(authenticated_client, preloaded_posts):
     res = authenticated_client.delete(f"/posts/{preloaded_posts[3].id}")
 
-    assert res.status_code == 4043
+    assert res.status_code == 403
