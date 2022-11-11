@@ -96,3 +96,51 @@ def test_delete_other_users_post(authenticated_client, preloaded_posts):
     res = authenticated_client.delete(f"/posts/{preloaded_posts[3].id}")
 
     assert res.status_code == 403
+
+
+def test_update_post(authenticated_client, test_user, preloaded_posts):
+    data = {
+        "title": "updated title",
+        "content": "updated content",
+        "id": preloaded_posts[0].id
+    }
+    res = authenticated_client.put(
+        f"/posts/{preloaded_posts[0].id}", json=data)
+    updated_post = schemas.PostResponse(**res.json())
+
+    assert res.status_code == 200
+    assert updated_post.title == data['title']
+    assert updated_post.content == data['content']
+
+
+def test_update_other_user_post(authenticated_client, test_user, test_user2, preloaded_posts):
+    data = {
+        "title": "updated title",
+        "content": "updated content",
+        "id": preloaded_posts[3].id
+    }
+    res = authenticated_client.put(
+        f"/posts/{preloaded_posts[3].id}", json=data)
+
+    assert res.status_code == 403
+
+
+def test_unauthenticated_user_update_post(client, preloaded_posts):
+    data = {
+        "title": "updated title",
+        "content": "updated content",
+        "id": preloaded_posts[3].id
+    }
+    res = client.put(f"/posts/{preloaded_posts[0].id}", json=data)
+    assert res.status_code == 401
+
+
+def test_update_nonexistent_post(authenticated_client, preloaded_posts):
+    data = {
+        "title": "updated title",
+        "content": "updated content",
+        "id": preloaded_posts[3].id
+    }
+    res = authenticated_client.put(
+        f"/posts/{RIDICULOUSLY_HIGH_NUMBER}", json=data)
+    assert res.status_code == 404
