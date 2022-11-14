@@ -12,6 +12,15 @@ on:
 
 jobs:
   job1:
+    environment:
+      name: fastapi-course-TESTING
+    env:
+      DB_USERNAME=${{DB_USERNAME}}
+      DB_PASSWORD=${{DB_PASSWORD}}
+      DB_HOST_URI=${{DB_HOST_URI}}
+      ALGORITHM=${{ALGORITHM}}
+      ACCESS_TOKEN_EXPIRE_MINUTES=${{ACCESS_TOKEN_EXPIRE_MINUTES}}
+      OAUTH2_SECRET_KEY=${{OAUTH2_SECRET_KEY}}
     runs-on: ubuntu-latest
     steps:
       - name: pulling git repo
