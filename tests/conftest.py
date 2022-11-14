@@ -15,7 +15,7 @@ from app import models
 
 # SQLALCHEMY_DATABASE_URL = f"postgresql://postgres:1234@localhost:5432/fastapi_test"
 # _test
-SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.db_username}:{settings.db_password}@{settings.db_host_uri}"
+SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.db_username}:{settings.db_password}@{settings.db_host_uri}_test"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL
