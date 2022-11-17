@@ -26,5 +26,4 @@ app.include_router(vote.router)
 
 @app.get("/")
 def root():
-    # making test fail on purpose:
-    return {"message": "¡¡¡Hello World successfully deployed from CI/CD pipeline!!!"}
+    return {"message": "¡¡¡Hola mundo successfully deployed from CI/CD pipeline!!!"}
