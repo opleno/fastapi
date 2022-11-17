@@ -10,7 +10,7 @@ def test_root(client):
     response = client.get("/")
     print(response.json())
     assert response.status_code == 200
-    assert response.json() == {"message": "¡¡¡Hola Mundo!!!"}
+    assert response.json() == {"message": "¡¡¡Hola Mundo successfully deployed from CI/CD pipeline!!!"}
 
 
 def test_create_user(client):
